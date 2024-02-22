@@ -19,3 +19,9 @@ const gameBoard = (() => {
     }
 })()
 
+function player(name, marker) {
+    return { 
+        name: name, 
+        marker: marker 
+    }
+}
