@@ -55,13 +55,15 @@ const game = (() => {
 
     const getActivePlayer = () => playerTurn
 
+    let hasWinner = false
+
     const checkWinCondition = (board, marker) => {
         const matchingValue = (value) => value === marker
 
         for(let row of board) {
             if(row.every(matchingValue)) {
                 console.log("Winning row")
-                return true
+                hasWinner = true
             }
         }
 
@@ -69,7 +71,7 @@ const game = (() => {
         for(let row of transposedBoard) {
             if(row.every(matchingValue)) {
                 console.log("Winning column")
-                return true
+                hasWinner = true
             }
         }
 
@@ -77,8 +79,12 @@ const game = (() => {
         let antiDiagonal = Array.from(board, (row, index) => row[board.length - 1 - index])
         if(mainDiagonal.every(matchingValue) || antiDiagonal.every(matchingValue)) {
             console.log("Winning diagonal")
-            return true
+            hasWinner = true
         }
+    }
+
+    const activeBoard = (board) => {
+        return board.flat().includes(0)
     }
 
     const playRound = (row, col) => {
@@ -87,12 +93,15 @@ const game = (() => {
         if(gameBoard.cellAvailable(row, col)) {
             gameBoard.addMarker(getActivePlayer().marker, row, col)
             gameBoard.printBoard()
+            checkWinCondition(gameBoard.getBoard(), getActivePlayer().marker)
 
-            if(checkWinCondition(gameBoard.getBoard(), getActivePlayer().marker)) {
+            if(hasWinner) {
                 console.log(`Game over! ${getActivePlayer().name} wins!`)
-            } else {
+            } else if(!hasWinner && activeBoard(gameBoard.getBoard())) {
                 switchTurns()
                 console.log(`Switching turns - ${getActivePlayer().name}'s turn`)
+            } else {
+                console.log("Game over - tie game!")
             }
             
         } else {
@@ -121,8 +130,19 @@ const game = (() => {
 // game.playRound(2, 0)
 
 // Winning Diagonal
-game.playRound(0, 0)
-game.playRound(0, 1)
-game.playRound(1, 1)
-game.playRound(0, 2)
-game.playRound(2, 2)
+// game.playRound(0, 0)
+// game.playRound(0, 1)
+// game.playRound(1, 1)
+// game.playRound(0, 2)
+// game.playRound(2, 2)
+
+// Tie Game
+// game.playRound(0, 0)
+// game.playRound(0, 1)
+// game.playRound(1, 0)
+// game.playRound(2, 0)
+// game.playRound(1, 1)
+// game.playRound(2, 2)
+// game.playRound(2, 1)
+// game.playRound(1, 2)
+// game.playRound(0, 2)
