@@ -9,8 +9,6 @@ const gameBoard = (() => {
     const addMarker = (marker, row, col) => {
         if(board[row][col] === 0) {
             board[row][col] = marker
-        } else {
-            console.log("Invalid cell")
         }
     }
 
@@ -18,14 +16,12 @@ const gameBoard = (() => {
         return board[row][col] === 0 ? true : false
     }
 
-    const printBoard = () => console.log(board.map(row => row.join(' ')).join('\n'))
+    // const printBoard = () => console.log(board.map(row => row.join(' ')).join('\n'))
 
     return {
         getBoard,
         addMarker,
-        cellAvailable,
-        transpose,
-        printBoard
+        cellAvailable
     }
 })()
 
@@ -56,13 +52,15 @@ const game = (() => {
     const getActivePlayer = () => playerTurn
 
     let hasWinner = false
+    let gameOver = false
+    const gameWon = () => hasWinner
+    const isOver = () => gameOver
 
     const checkWinCondition = (board, marker) => {
         const matchingValue = (value) => value === marker
 
         for(let row of board) {
             if(row.every(matchingValue)) {
-                console.log("Winning row")
                 hasWinner = true
             }
         }
@@ -70,7 +68,6 @@ const game = (() => {
         let transposedBoard = transpose(board)
         for(let row of transposedBoard) {
             if(row.every(matchingValue)) {
-                console.log("Winning column")
                 hasWinner = true
             }
         }
@@ -78,7 +75,6 @@ const game = (() => {
         let mainDiagonal = Array.from(board, (row, index) => row[index])
         let antiDiagonal = Array.from(board, (row, index) => row[board.length - 1 - index])
         if(mainDiagonal.every(matchingValue) || antiDiagonal.every(matchingValue)) {
-            console.log("Winning diagonal")
             hasWinner = true
         }
     }
@@ -87,62 +83,80 @@ const game = (() => {
         return board.flat().includes(0)
     }
 
-    const playRound = (row, col) => {
-        console.log(`${getActivePlayer().name}'s turn - placing marker at [${col}][${row}]`)
+    let winner;
+    const getWinningPlayer = () => winner
 
+    const playRound = (row, col) => {
         if(gameBoard.cellAvailable(row, col)) {
             gameBoard.addMarker(getActivePlayer().marker, row, col)
-            gameBoard.printBoard()
             checkWinCondition(gameBoard.getBoard(), getActivePlayer().marker)
 
             if(hasWinner) {
-                console.log(`Game over! ${getActivePlayer().name} wins!`)
+                gameOver = true
+                winner = getActivePlayer().name
             } else if(!hasWinner && activeBoard(gameBoard.getBoard())) {
                 switchTurns()
-                console.log(`Switching turns - ${getActivePlayer().name}'s turn`)
             } else {
-                console.log("Game over - tie game!")
+                gameOver = true
             }
-            
-        } else {
-            console.log("Cell filled - try again")
         }
     }
 
     return {
-        playRound
+        playRound,
+        getActivePlayer,
+        gameWon,
+        isOver,
+        getWinningPlayer
     }
 })()
 
-// Winning row
-// game.playRound(0, 0)
-// game.playRound(0, 0)
-// game.playRound(1, 0)
-// game.playRound(0, 1)
-// game.playRound(2, 1)
-// game.playRound(0, 2)
+const gameDisplay = (() => {
+    const boardDiv = document.getElementById('board')
+    const turnDiv = document.getElementById('turn')
 
-// Winning Column
-// game.playRound(0, 0)
-// game.playRound(0, 1)
-// game.playRound(1, 0)
-// game.playRound(0, 2)
-// game.playRound(2, 0)
+    const render = () => {
+        boardDiv.textContent = ''
 
-// Winning Diagonal
-// game.playRound(0, 0)
-// game.playRound(0, 1)
-// game.playRound(1, 1)
-// game.playRound(0, 2)
-// game.playRound(2, 2)
+        const board = gameBoard.getBoard()
+        const activePlayer = game.getActivePlayer()
 
-// Tie Game
-// game.playRound(0, 0)
-// game.playRound(0, 1)
-// game.playRound(1, 0)
-// game.playRound(2, 0)
-// game.playRound(1, 1)
-// game.playRound(2, 2)
-// game.playRound(2, 1)
-// game.playRound(1, 2)
-// game.playRound(0, 2)
+        turnDiv.textContent = `${activePlayer.name}'s Turn`
+
+        board.forEach(row => {
+            const rowIndex = board.indexOf(row)
+            row.forEach((value, index) => {
+                const button = document.createElement('button')
+                button.classList.add('cell')
+                button.dataset.row = rowIndex
+                button.dataset.column = index
+                button.textContent = value
+                boardDiv.appendChild(button)
+            })
+        })
+
+        if(game.isOver()) {
+            if(!game.gameWon()) {
+                turnDiv.textContent = "Game over - tie game!"
+            } else {
+                turnDiv.textContent = `Game over! ${game.getWinningPlayer()} wins!`
+            }
+        } 
+    }
+
+    const placeMarker = (event) => {
+        let selectedRow = event.target.dataset.row
+        let selectedCol = event.target.dataset.column
+
+        if(!selectedCol || !selectedRow) { return }
+        if(event.target.textContent === '0' && !game.isOver()) {
+            game.playRound(selectedRow, selectedCol)
+        }
+
+        render()
+    }
+
+    boardDiv.addEventListener('click', placeMarker)
+
+    render()
+})()
