@@ -115,25 +115,9 @@ const gameDisplay = (() => {
     const boardDiv = document.getElementById('board')
     const turnDiv = document.getElementById('turn')
 
-    const render = () => {
-        boardDiv.textContent = ''
-
-        const board = gameBoard.getBoard()
+    const updatePlayerTurn = () => {
         const activePlayer = game.getActivePlayer()
-
         turnDiv.textContent = `${activePlayer.name}'s Turn`
-
-        board.forEach(row => {
-            const rowIndex = board.indexOf(row)
-            row.forEach((value, index) => {
-                const button = document.createElement('button')
-                button.classList.add('cell')
-                button.dataset.row = rowIndex
-                button.dataset.column = index
-                button.textContent = value
-                boardDiv.appendChild(button)
-            })
-        })
 
         if(game.isOver()) {
             if(!game.gameWon()) {
@@ -141,19 +125,40 @@ const gameDisplay = (() => {
             } else {
                 turnDiv.textContent = `Game over! ${game.getWinningPlayer()} wins!`
             }
-        } 
+        }
+    }
+
+    const render = () => {
+        const board = gameBoard.getBoard()
+
+        updatePlayerTurn()
+        
+        board.forEach(row => {
+            const rowIndex = board.indexOf(row)
+            row.forEach((_, index) => {
+                const button = document.createElement('button')
+                button.classList.add('cell')
+                button.dataset.row = rowIndex
+                button.dataset.column = index
+                button.dataset.marker = 0
+                boardDiv.appendChild(button)
+            })
+        })
     }
 
     const placeMarker = (event) => {
         let selectedRow = event.target.dataset.row
         let selectedCol = event.target.dataset.column
+        let target = event.target
 
         if(!selectedCol || !selectedRow) { return }
-        if(event.target.textContent === '0' && !game.isOver()) {
+        if(target.dataset.marker === '0' && !game.isOver()) {
+            let btn = document.querySelector(`[data-row="${selectedRow}"][data-column="${selectedCol}"]`)
+            btn.setAttribute('data-marker', game.getActivePlayer().marker)
             game.playRound(selectedRow, selectedCol)
         }
 
-        render()
+        updatePlayerTurn()
     }
 
     boardDiv.addEventListener('click', placeMarker)

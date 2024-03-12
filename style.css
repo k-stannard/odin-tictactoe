@@ -30,3 +30,13 @@ button {
     width: 100px;
     height: 100px;
 }
+
+button[data-marker="1"] {
+    background: url(./images/x.png);
+    background-size: contain;
+}
+
+button[data-marker="2"] {
+    background: url(./images/o.png);
+    background-size: contain;
+}
