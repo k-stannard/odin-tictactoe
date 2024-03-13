@@ -20,23 +20,28 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: green solid 2px;
     flex-wrap: wrap;
     width: 300px;
     height: 300px;
 }
 
-button {
+.cell {
     width: 100px;
     height: 100px;
 }
 
-button[data-marker="1"] {
+.cell[data-marker="1"] {
     background: url(./images/x.png);
     background-size: contain;
 }
 
-button[data-marker="2"] {
+.cell[data-marker="2"] {
     background: url(./images/o.png);
     background-size: contain;
+}
+
+#reset {
+    width: 100px;
+    height: 40px;
+    margin: 20px;
 }

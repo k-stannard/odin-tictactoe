@@ -1,7 +1,7 @@
 const gameBoard = (() => {
     const rows = 3
     const columns = 3
-    const board = Array.from({ length: rows }, () =>
+    let board = Array.from({ length: rows }, () =>
                 new Array(columns).fill(0))
 
     const getBoard = () => board
@@ -16,12 +16,19 @@ const gameBoard = (() => {
         return board[row][col] === 0 ? true : false
     }
 
+    const clearBoard = () => {
+        board.forEach(row => {
+            row.fill(0)
+        })
+    }
+
     // const printBoard = () => console.log(board.map(row => row.join(' ')).join('\n'))
 
     return {
         getBoard,
         addMarker,
-        cellAvailable
+        cellAvailable,
+        clearBoard
     }
 })()
 
@@ -102,18 +109,26 @@ const game = (() => {
         }
     }
 
+    const resetGame = () => {
+        playerTurn = players[0]
+        hasWinner = false
+        gameOver = false
+    }
+
     return {
         playRound,
         getActivePlayer,
         gameWon,
         isOver,
-        getWinningPlayer
+        getWinningPlayer,
+        resetGame
     }
 })()
 
 const gameDisplay = (() => {
     const boardDiv = document.getElementById('board')
     const turnDiv = document.getElementById('turn')
+    const resetButton = document.getElementById('reset')
 
     const updatePlayerTurn = () => {
         const activePlayer = game.getActivePlayer()
@@ -132,7 +147,7 @@ const gameDisplay = (() => {
         const board = gameBoard.getBoard()
 
         updatePlayerTurn()
-        
+
         board.forEach(row => {
             const rowIndex = board.indexOf(row)
             row.forEach((_, index) => {
@@ -161,7 +176,16 @@ const gameDisplay = (() => {
         updatePlayerTurn()
     }
 
+    const resetBoard = () => {
+        boardDiv.replaceChildren()
+        gameBoard.clearBoard()
+        game.resetGame()
+        render()
+    }
+
     boardDiv.addEventListener('click', placeMarker)
+    resetButton.addEventListener('click', resetBoard)
+
 
     render()
 })()
