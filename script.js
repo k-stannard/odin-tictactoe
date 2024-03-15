@@ -37,17 +37,18 @@ function transpose(matrix) {
             .map(colNumber => matrix.map(rowNumber => rowNumber[colNumber]))
 }
 
-function player(name, marker) {
+function player(name, marker, color) {
     return { 
         name: name, 
-        marker: marker 
+        marker: marker,
+        color: color
     }
 }
 
 const game = (() => {
     const players = [
-        player("Player One", 1),
-        player("Player Two", 2)
+        player("Player One", 1, "rgb(237, 146, 125)"),
+        player("Player Two", 2, "rgb(217, 120, 165)")
     ]
 
     let playerTurn = players[0]
@@ -100,7 +101,7 @@ const game = (() => {
 
             if(hasWinner) {
                 gameOver = true
-                winner = getActivePlayer().name
+                winner = getActivePlayer()
             } else if(!hasWinner && activeBoard(gameBoard.getBoard())) {
                 switchTurns()
             } else {
@@ -136,9 +137,12 @@ const gameDisplay = (() => {
 
         if(game.isOver()) {
             if(!game.gameWon()) {
+                turnDiv.classList.remove('toggle')
+                turnDiv.classList.toggle('gradient')
                 turnDiv.textContent = "Game over - tie game!"
             } else {
-                turnDiv.textContent = `Game over! ${game.getWinningPlayer()} wins!`
+                turnDiv.textContent = `Game over! ${game.getWinningPlayer().name} wins!`
+                turnDiv.style.color = game.getWinningPlayer().color
             }
         }
     }
@@ -171,6 +175,7 @@ const gameDisplay = (() => {
             let btn = document.querySelector(`[data-row="${selectedRow}"][data-column="${selectedCol}"]`)
             btn.setAttribute('data-marker', game.getActivePlayer().marker)
             game.playRound(selectedRow, selectedCol)
+            turnDiv.classList.toggle('toggle')
         }
 
         updatePlayerTurn()
@@ -180,12 +185,14 @@ const gameDisplay = (() => {
         boardDiv.replaceChildren()
         gameBoard.clearBoard()
         game.resetGame()
+        turnDiv.classList.remove('toggle')
+        turnDiv.classList.remove('gradient')
+        turnDiv.removeAttribute('style')
         render()
     }
 
     boardDiv.addEventListener('click', placeMarker)
     resetButton.addEventListener('click', resetBoard)
-
 
     render()
 })()
