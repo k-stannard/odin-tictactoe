@@ -3,6 +3,8 @@
     --color-salmon: #ed927d;
     --color-faded-pink: #d978a5;
     --gradient: linear-gradient(to right, var(--color-salmon), var(--color-faded-pink));
+    --btn-grey: #717171;
+    --btn-black: #212121;
 }
 
 * {
@@ -47,6 +49,20 @@ body {
     flex-wrap: wrap;
     width: 300px;
     height: 300px;
+}
+
+button {
+    border-top: 3px solid var(--btn-grey);
+    border-left: 3px solid var(--btn-grey);
+    border-right: 3px solid var(--btn-black);
+    border-bottom: 3px solid var(--btn-black);
+}
+
+button:active {
+    border-top: 3px solid var(--btn-black);
+    border-left: 3px solid var(--btn-black);
+    border-right: 3px solid var(--btn-grey);
+    border-bottom: 3px solid var(--btn-grey);
 }
 
 .cell {
